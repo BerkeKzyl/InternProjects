@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Suspense, useState, FormEvent, useEffect } from 'react';
+import { Suspense, useState, FormEvent, useEffect, useRef } from 'react';
 import { Paperclip, Mic, CornerDownLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,10 +17,13 @@ function ChatContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const name = searchParams.get('name') || 'Kullanıcı';
+
   
   // SignalR bağlantısı
   const { 
     messages: signalRMessages, 
+    connectionRef,
+    typingUsers,
     isConnected, 
     isConnecting,
     sendMessage: sendSignalRMessage,
@@ -67,9 +70,36 @@ function ChatContent() {
     }
   };
 
-  const handleAttachFile = () => {
-    // File attachment functionality
-  };
+  const typingRef = useRef(false);
+  const timeoutRef = useRef(null);
+
+const handleTyping = () => {
+
+  console.log(' handleTyping tetiklendi!');
+  
+if (!typingRef.current){
+  console.log(' Typing gönderiliyor...');
+
+const targetName = "müşteri hizmetleri";
+const senderName = name;
+
+connectionRef.current?.invoke("UserTyping", senderName, targetName);
+typingRef.current = true;
+
+console.log(' Hub invoke edildi!');
+
+if (timeoutRef.current) {
+  clearTimeout(timeoutRef.current);
+}
+
+timeoutRef.current = setTimeout(() => {
+  typingRef.current = false;
+}, 3000);
+
+}
+};
+    
+
 
   const handleMicrophoneClick = () => {
     // Voice recording functionality
@@ -78,17 +108,15 @@ function ChatContent() {
   const handleEndChat = async () => {
     if (confirm('Talebi sonlandırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
       try {
-        // Admin'e sohbet sonlandırıldı mesajı gönder
         await sendSignalRMessage(`${name} sohbeti sonlandırdı.`);
         
-        // Kısa bir süre bekle ki mesaj gitsin
         setTimeout(() => {
-          // Ana sayfaya yönlendir
+
           router.push('/');
         }, 500);
       } catch (error) {
         console.error('Sonlandırma mesajı gönderilemedi:', error);
-        // Hata olsa bile sayfaya yönlendir
+
         router.push('/');
       }
     }
@@ -156,6 +184,7 @@ function ChatContent() {
           </div>
 
           <div className="p-4 border-t border-gray-700">
+         {typingUsers && <span className="text-gray-500">{typingUsers} yazıyor..</span>}
             <form
               onSubmit={handleSubmit}
               className="relative rounded-lg border border-gray-600 bg-gray-800 focus-within:ring-1 focus-within:ring-cyan-400 p-1"
@@ -164,6 +193,7 @@ function ChatContent() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Mesajınızı yazın..."
+                onKeyDown={handleTyping}
                 className="min-h-12 resize-none rounded-lg bg-gray-800 border-0 p-3 shadow-none focus-visible:ring-0 text-white placeholder:text-gray-400"
               />
               <div className="flex items-center p-3 pt-0 justify-between">
@@ -172,7 +202,7 @@ function ChatContent() {
                     variant="ghost"
                     size="icon"
                     type="button"
-                    onClick={handleAttachFile}
+                   // onClick={handleAttachFile}
                     className="text-gray-400 hover:text-white"
                   >
                     <Paperclip className="size-4" />

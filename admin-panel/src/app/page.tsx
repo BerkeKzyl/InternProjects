@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   ChatBubbleLeftRightIcon, 
   UserGroupIcon, 
@@ -23,7 +23,11 @@ export default function AdminPanel() {
     isConnecting,
     activeCustomers,
     sendReplyToCustomer,
+    customerName,
     getMessagesForCustomer,
+    connectionRef,
+    typingUsers,
+
     removeCustomer
   } = useAdminSignalR({
     hubUrl: "http://localhost:5180/chathub",
@@ -57,20 +61,51 @@ export default function AdminPanel() {
     }
   };
 
-  // Şüpheli talep işlemi
+
+  const typingRef = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+
+  const handleTyping = () => {
+    console.log(' ADMIN handleTyping tetiklendi!');
+    // File attachment functionality
+if (!typingRef.current){
+  console.log(' ADMIN Typing gönderiliyor...');
+
+  const targetName = selectedCustomer;
+  const senderName = "müşteri hizmetleri";
+
+  connectionRef.current?.invoke("UserTyping", senderName, targetName);
+  console.log(' ADMIN Hub invoke edildi!'); 
+  
+  typingRef.current = true;
+
+  if (timeoutRef.current) {
+    clearTimeout(timeoutRef.current);
+  }
+
+  timeoutRef.current = setTimeout(() => {
+  typingRef.current = false;
+  }, 3000);
+
+
+  }
+  };
+    
+
+
   const handleSuspiciousReport = async (customerName: string) => {
-    console.log('🚫 Şüpheli talep butonu tıklandı - Müşteri:', customerName);
-    console.log('📡 SignalR bağlantı durumu:', isConnected);
-    console.log('📋 Mevcut fonksiyonlar:', { sendReplyToCustomer, isConnected });
+    console.log(' Şüpheli talep butonu tıklandı - Müşteri:', customerName);
+    console.log(' SignalR bağlantı durumu:', isConnected);
+    console.log(' Mevcut fonksiyonlar:', { sendReplyToCustomer, isConnected });
     
     if (confirm(`"${customerName}" adlı müşteriyi şüpheli talep olarak işaretleyip sohbeti sonlandırmak istediğinizden emin misiniz?`)) {
       console.log('✅ Kullanıcı onayladı, işlem başlatılıyor...');
       
       try {
-        console.log('📤 Hub\'a sonlandırma mesajı gönderiliyor...');
         
-        // Hub'a admin sonlandırma mesajı gönder
-        await sendReplyToCustomer(customerName, `🚫 Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`);
+ 
+        await sendReplyToCustomer(customerName, ` Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`);
         
         console.log('✅ Mesaj başarıyla gönderildi');
         
@@ -82,7 +117,6 @@ export default function AdminPanel() {
             console.log('👤 Seçili müşteri temizlendi');
           }
           
-          // Müşteriyi aktif listeden ve mesajlardan tamamen sil
           removeCustomer(customerName);
           
           console.log(`🏁 Şüpheli talep: ${customerName} - Sohbet tamamen sonlandırıldı`);
@@ -321,13 +355,16 @@ export default function AdminPanel() {
                 </div>
 
                 {/* Chat Input */}
-                <div className="p-4 border-t border-gray-200">
-                  <div className="flex space-x-2">
+                
+                <div className="p-4 border-t border-gray-200 text-sm text-gray-500 py-3">
+                {typingUsers && <p>{typingUsers} yazıyor...</p>}
+                  <div className="flex space-x-2 ">
                     <input
                       type="text"
                       value={replyMessage}
                       onChange={(e) => setReplyMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSendReply()}
+                      onKeyDown={(e) => handleTyping()}
                       placeholder="Mesajınızı yazın..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-700 placeholder:font-medium text-gray-900 font-medium"
                       disabled={!isConnected}

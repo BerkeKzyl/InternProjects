@@ -19,6 +19,7 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<string | null>(null);
   const [activeCustomers, setActiveCustomers] = useState<string[]>([]);
 
   const connectionRef = useRef<HubConnection | null>(null);
@@ -76,14 +77,23 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
               return [...prevMessages, newMessage];
             });
 
-            // Aktif müşteri listesini güncelle
-            setActiveCustomers(prev => {
-              if (!prev.includes(user)) {
-                return [...prev, user];
+            // Yeni müşteriyi aktif listeye ekle
+            setActiveCustomers(prevCustomers => {
+              if (!prevCustomers.includes(user)) {
+                return [...prevCustomers, user];
               }
-              return prev;
+              return prevCustomers;
             });
           }
+        });
+
+        newConnection.on("ReceiveTyping", (senderName, targetName) => {
+          console.log('Admin - kullanıcı yazıyor:', { senderName, targetName });
+          setTypingUsers(senderName);
+
+          setTimeout(() => {
+            setTypingUsers(null);
+          }, 3000);
         });
       })
       .catch((error) => {
@@ -97,10 +107,12 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
       console.log('Admin connection cleanup çalıştı');
       if (newConnection) {
         newConnection.off("ReceiveMessage");
+        newConnection.off("ReceiveTyping");
         newConnection.stop();
       }
       if (connectionRef.current) {
         connectionRef.current.off("ReceiveMessage");
+        connectionRef.current.off("ReceiveTyping");
         connectionRef.current.stop();
         connectionRef.current = null;
       }
@@ -153,8 +165,10 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
   return {
     messages,
     isConnected,
+    connectionRef,
     isConnecting,
     activeCustomers,
+    typingUsers, // Typing bilgisini de return et
     sendReplyToCustomer,
     getMessagesForCustomer,
     removeCustomer,

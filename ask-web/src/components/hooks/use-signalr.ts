@@ -18,7 +18,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-
+  const [typingUsers, setTypingUsers] = useState<string | null>(null);
   const connectionRef = useRef<HubConnection | null>(null);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
           const newMessage: Message = {
             id: messageId,
             content: message,
-            sender: user === userName ? "user" : "support", // Kendi mesajı mı yoksa destek ekibinden mi?
+            sender: user === userName ? "user" : "support", 
             timestamp: new Date(timestamp)
           };
           
@@ -71,22 +71,40 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
             return [...prevMessages, newMessage];
           });
         });
+
+        newConnection.on("ReceiveTyping", (senderName, targetName) => {
+          console.log('Musteri -  kullanıcı yazıyor :',{senderName, targetName});
+         setTypingUsers(senderName);
+      
+         setTimeout(() => {
+          setTypingUsers(null);
+         }, 3000);
+      });
+      
+
+
+
       })
+
+
       .catch((error) => {
         console.error('Bağlantı hatası:', error);
         setIsConnecting(false);
         setIsConnected(false);
       });
 
+
     // Cleanup function
     return () => {
       console.log('Connection cleanup çalıştı');
       if (newConnection) {
-        newConnection.off("ReceiveMessage"); // Event listener'ı kaldır
+        newConnection.off("ReceiveMessage"); 
+        newConnection.off("ReceiveTyping"); 
         newConnection.stop();
       }
       if (connectionRef.current) {
-        connectionRef.current.off("ReceiveMessage"); // Event listener'ı kaldır
+        connectionRef.current.off("ReceiveMessage"); 
+        connectionRef.current.off("ReceiveTyping"); 
         connectionRef.current.stop();
         connectionRef.current = null;
       }
@@ -112,6 +130,10 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
     }
   };
 
+
+
+
+
   // Yerel mesaj ekleme fonksiyonu
   const addLocalMessage = (message: Message) => {
     setMessages(prevMessages => {
@@ -132,6 +154,8 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
     isConnecting,
     sendMessage,
     addLocalMessage,
+    typingUsers,
+    connectionRef,
     disconnect: () => {
       if (connectionRef.current) {
         connectionRef.current.stop();

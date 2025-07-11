@@ -39,3 +39,4 @@ C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\refi
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSignalRHub.pdb
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSignalRHub.genruntimeconfig.cache
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ref\ChatSignalRHub.dll
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSignalRHub.sourcelink.json

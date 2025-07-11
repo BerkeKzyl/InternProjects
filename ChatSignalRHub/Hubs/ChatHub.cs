@@ -4,7 +4,27 @@ namespace ChatSignalRHub.Hubs
 {
     public class ChatHub : Hub
     {
-        // Mesaj gönderme - akıllı yönlendirme sistemi
+
+        public async Task UserTyping(string senderName, string targetName)
+        {
+            Console.WriteLine($"kullanıcı yazıyor - User: {senderName}");
+            
+            
+            await Clients.All.SendAsync("ReceiveTyping", senderName, targetName);
+            
+            
+        }
+
+
+
+
+
+
+
+
+
+
+
         public async Task SendMessage(string user, string message)
         {
             Console.WriteLine($"Mesaj alındı - User: {user}, Message: {message}");
@@ -14,15 +34,17 @@ namespace ChatSignalRHub.Hubs
             
             if (user.StartsWith("admin_"))
             {
-                // Admin mesajı - tüm müşteriler (admin olmayanlar) alsın
                 Console.WriteLine("Admin mesajı - müşterilere gönderiliyor");
                 await Clients.All.SendAsync("ReceiveMessage", user, message, messageId, timestamp);
+
+
             }
             else
             {
-                // Müşteri mesajı - sadece admin'lere gönder
+          
                 Console.WriteLine("Müşteri mesajı - admin'lere gönderiliyor");
                 await Clients.All.SendAsync("ReceiveMessage", user, message, messageId, timestamp);
+
             }
         }
         
