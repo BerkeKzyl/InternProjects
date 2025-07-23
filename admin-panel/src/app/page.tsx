@@ -15,7 +15,8 @@ export default function AdminPanel() {
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
-  const [readMessages, setReadMessages] = useState<Set<string>>(new Set()); // Okunmuş mesaj ID'leri
+  const [readMessages, setReadMessages] = useState<Set<string>>(new Set()); 
+  const [roomId, setRoomId] = useState<string | null>(null);
   
   // Oda listesi (ask-web ile aynı roomId'ler)
   const rooms = [
@@ -63,9 +64,9 @@ export default function AdminPanel() {
     }
   }, [selectedCustomer, messages]);
 
-  const handleSendReply = async () => {
+  const handleSendReply = async (roomId: string | null) => {
     if (replyMessage.trim() && selectedCustomer) {
-      await sendReplyToCustomer(selectedCustomer, replyMessage);
+      await sendReplyToCustomer(selectedCustomer, replyMessage, roomId??"");
       setReplyMessage('');
     }
   };
@@ -114,7 +115,7 @@ if (!typingRef.current){
       try {
         
  
-        await sendReplyToCustomer(customerName, ` Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`);
+        await sendReplyToCustomer(customerName, ` Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`, roomId);
         
         console.log('✅ Mesaj başarıyla gönderildi');
         
@@ -245,9 +246,10 @@ if (!typingRef.current){
                   <div
                     key={room.id}
                     onClick={() => {
+                      setRoomId(room.id);
                       setSelectedRoomId(room.id);
-                      setSelectedCustomer(null); // Müşteri seçimini temizle
-                      console.log('Oda seçildi:', room.id); // Sen teknik kodları buraya ekleyeceksin
+                      setSelectedCustomer(null); 
+                      console.log('Oda seçildi:', room.id); 
                     }}
                     className={`flex items-center justify-between p-2 rounded-lg cursor-pointer border ${
                       selectedRoomId === room.id 
@@ -423,7 +425,7 @@ if (!typingRef.current){
                       type="text"
                       value={replyMessage}
                       onChange={(e) => setReplyMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendReply()}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendReply(roomId)}
                       onKeyDown={(e) => handleTyping()}
                       placeholder="Mesajınızı yazın..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-700 placeholder:font-medium text-gray-900 font-medium"

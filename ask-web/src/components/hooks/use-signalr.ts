@@ -123,7 +123,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
     try {
       // Hub'daki "SendMessage" metodunu çağır (userName, message)
       const senderName = customUserName || userName;
-      await connectionRef.current.invoke("SendMessage", senderName, message);
+      await connectionRef.current.invoke("SendMessage", senderName, message, roomId);
       console.log('Mesaj hub\'a gönderildi!');
     } catch (error) {
       console.error('Mesaj gönderme hatası:', error);

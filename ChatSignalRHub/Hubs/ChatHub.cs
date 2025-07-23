@@ -5,12 +5,12 @@ namespace ChatSignalRHub.Hubs
     public class ChatHub : Hub
     {
 
-        public async Task UserTyping(string senderName, string targetName)
+        public async Task UserTyping(string senderName, string targetName, string roomId)
         {
             Console.WriteLine($"kullanıcı yazıyor - User: {senderName}");
             
             
-            await Clients.All.SendAsync("ReceiveTyping", senderName, targetName);
+            await Clients.Group(roomId).SendAsync("ReceiveTyping", senderName, targetName, roomId);
             
             
         }
@@ -19,13 +19,7 @@ namespace ChatSignalRHub.Hubs
 
 
 
-
-
-
-
-
-
-        public async Task SendMessage(string user, string message)
+        public async Task SendMessage(string user, string message, string roomId)
         {
             Console.WriteLine($"Mesaj alındı - User: {user}, Message: {message}");
             
@@ -35,16 +29,14 @@ namespace ChatSignalRHub.Hubs
             if (user.StartsWith("admin_"))
             {
                 Console.WriteLine("Admin mesajı - müşterilere gönderiliyor");
-                await Clients.All.SendAsync("ReceiveMessage", user, message, messageId, timestamp);
+                await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
 
 
             }
             else
             {
-          
                 Console.WriteLine("Müşteri mesajı - admin'lere gönderiliyor");
-                await Clients.All.SendAsync("ReceiveMessage", user, message, messageId, timestamp);
-
+                await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
             }
         }
         
@@ -56,7 +48,8 @@ namespace ChatSignalRHub.Hubs
             
             Console.WriteLine($"Client bağlandı: {Context.ConnectionId}, User: {userName}");
             
-            // Eğer kullanıcı adı varsa hoş geldin mesajı gönder
+
+            
             if (!string.IsNullOrEmpty(userName))
             {
                 await Clients.Client(Context.ConnectionId).SendAsync(

@@ -53,7 +53,7 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
         connectionRef.current = newConnection;
 
         // Hub'dan gelen müşteri mesajlarını dinle
-        newConnection.on("ReceiveMessage", (user, message, messageId, timestamp) => {
+        newConnection.on("ReceiveMessage", (user, message, messageId, timestamp, roomId) => {
           console.log('Admin - Yeni mesaj geldi:', { user, message, messageId, timestamp });
           
           // Eğer mesaj admin'den değilse (müşteri mesajı), listeye ekle
@@ -120,7 +120,7 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
   }, [hubUrl, adminName]);
 
   // Admin mesajı gönderme fonksiyonu
-  const sendReplyToCustomer = async (customerName: string, message: string) => {
+  const sendReplyToCustomer = async (customerName: string, message: string, roomId: string) => {
     console.log('Admin cevap gönderiyor:', { customerName, message });
     
     if (!connectionRef.current || !isConnected) {
@@ -130,7 +130,7 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
 
     try {
       // Hub'daki "SendMessage" metodunu çağır (admin adı ile)
-      await connectionRef.current.invoke("SendMessage", `admin_${adminName}`, message);
+      await connectionRef.current.invoke("SendMessage", `admin_${adminName}`, message, roomId);
       console.log('Admin mesajı hub\'a gönderildi!');
       
       // Kendi mesajını da listeye ekle
