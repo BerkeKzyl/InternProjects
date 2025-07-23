@@ -13,9 +13,18 @@ import { useAdminSignalR } from '../components/hooks/use-admin-signalr';
 
 export default function AdminPanel() {
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
   const [readMessages, setReadMessages] = useState<Set<string>>(new Set()); // Okunmuş mesaj ID'leri
   
+  // Oda listesi (ask-web ile aynı roomId'ler)
+  const rooms = [
+    { id: "genel", name: "Genel Destek", icon: "💬", userCount: 12 },
+    { id: "teknik", name: "Teknik Yardım", icon: "🔧", userCount: 8 },
+    { id: "odeme", name: "Ödeme Sorunları", icon: "💳", userCount: 5 },
+    { id: "kargo", name: "Kargo Takip", icon: "📦", userCount: 15 },
+  ];
+
   // SignalR bağlantısı
   const { 
     messages, 
@@ -227,6 +236,38 @@ if (!typingRef.current){
         <div className="flex gap-6 h-[calc(100vh-200px)]">
           {/* Sol Panel - Aktif Müşteriler */}
           <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col">
+            
+            {/* YENİ: Oda Butonları Bölümü */}
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">🏠 Destek Odaları</h3>
+              <div className="space-y-2">
+                {rooms.map((room) => (
+                  <div
+                    key={room.id}
+                    onClick={() => {
+                      setSelectedRoomId(room.id);
+                      setSelectedCustomer(null); // Müşteri seçimini temizle
+                      console.log('Oda seçildi:', room.id); // Sen teknik kodları buraya ekleyeceksin
+                    }}
+                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer border ${
+                      selectedRoomId === room.id 
+                        ? 'bg-blue-100 border-blue-300' 
+                        : 'bg-blue-50 hover:bg-blue-100 border-blue-200'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">{room.icon}</span>
+                      <span className="font-medium text-gray-900 text-sm">{room.name}</span>
+                    </div>
+                    <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
+                      {room.userCount}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* MEVCUT: Aktif Chat'ler Bölümü */}
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-900">Aktif Chat'ler</h3>
@@ -256,7 +297,10 @@ if (!typingRef.current){
                     return (
                       <div
                         key={customer}
-                        onClick={() => setSelectedCustomer(customer)}
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          setSelectedRoomId(null); // Oda seçimini temizle
+                        }}
                         className={`p-3 rounded-lg cursor-pointer transition-colors mb-2 ${
                           selectedCustomer === customer
                             ? 'bg-blue-50 border border-blue-200'
@@ -302,19 +346,35 @@ if (!typingRef.current){
 
           {/* Sağ Panel - Chat Alanı */}
           <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col">
-            {selectedCustomer ? (
+            {(selectedCustomer || selectedRoomId) ? (
               <>
                 {/* Chat Header */}
                 <div className="p-4 border-b border-gray-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                        <UserIcon className="w-6 h-6 text-gray-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">{selectedCustomer}</h3>
-                        <p className="text-sm text-gray-500">Müşteri ile konuşuyorsunuz</p>
-                      </div>
+                      {selectedRoomId ? (
+                        // Oda seçildiğinde
+                        <>
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-lg">{rooms.find(r => r.id === selectedRoomId)?.icon}</span>
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">{rooms.find(r => r.id === selectedRoomId)?.name}</h3>
+                            <p className="text-sm text-gray-500">Oda chat - Genel mesajlar</p>
+                          </div>
+                        </>
+                      ) : (
+                        // Müşteri seçildiğinde
+                        <>
+                          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                            <UserIcon className="w-6 h-6 text-gray-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">{selectedCustomer}</h3>
+                            <p className="text-sm text-gray-500">Müşteri ile konuşuyorsunuz</p>
+                          </div>
+                        </>
+                      )}
                     </div>
                     
                     {/* Şüpheli Talep Butonu */}
@@ -385,10 +445,10 @@ if (!typingRef.current){
                 <div className="text-center">
                   <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Müşteri Seçin
+                    Chat Seçin
                   </h3>
                   <p className="text-gray-600">
-                    Sol taraftan bir müşteri seçerek chat'e başlayın
+                    Sol taraftan bir oda veya müşteri seçerek chat'e başlayın
                   </p>
                 </div>
               </div>
