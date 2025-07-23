@@ -22,24 +22,31 @@ namespace ChatSignalRHub.Hubs
         public async Task SendMessage(string user, string message, string roomId)
         {
             Console.WriteLine($"Mesaj alındı - User: {user}, Message: {message}");
-            
+
             var messageId = Guid.NewGuid().ToString();
             var timestamp = DateTime.Now;
-            
-            if (user.StartsWith("admin_"))
-            {
-                Console.WriteLine("Admin mesajı - müşterilere gönderiliyor");
-                await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
+            try {
+                if (user.StartsWith("admin_"))
+                {
+                    Console.WriteLine("Admin mesajı - müşterilere gönderiliyor");
+                    await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
 
 
+                }
+                else
+                {
+                    Console.WriteLine("Müşteri mesajı - admin'lere gönderiliyor");
+                    await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Müşteri mesajı - admin'lere gönderiliyor");
-                await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
+                Console.WriteLine($"Mesaj gönderilirken hata oluştu: {ex.Message}");
+                await Clients.Caller.SendAsync("ReceiveError", "Mesaj gönderilirken bir hata oluştu.");
             }
         }
-        
+
+
         // Client bağlandığında
         public override async Task OnConnectedAsync()
         {

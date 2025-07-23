@@ -27,11 +27,6 @@ C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\Chat
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSignalRHub.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets.development.json
-C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets\msbuild.ChatSignalRHub.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets\msbuild.build.ChatSignalRHub.props
-C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.ChatSignalRHub.props
-C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.ChatSignalRHub.props
-C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\scopedcss\bundle\ChatSignalRHub.styles.css
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSign.3580D83B.Up2Date
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSignalRHub.dll
@@ -40,3 +35,11 @@ C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\Chat
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSignalRHub.genruntimeconfig.cache
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ref\ChatSignalRHub.dll
 C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\ChatSignalRHub.sourcelink.json
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\bin\Debug\net8.0\ChatSignalRHub.staticwebassets.endpoints.json
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets.build.json.cache
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\kuzey\OneDrive\Desktop\LCWProjects\ChatSignalRHub\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

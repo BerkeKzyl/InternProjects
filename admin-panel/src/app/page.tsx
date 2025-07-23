@@ -115,7 +115,7 @@ if (!typingRef.current){
       try {
         
  
-        await sendReplyToCustomer(customerName, ` Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`, roomId);
+        await sendReplyToCustomer(customerName, ` Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`, roomId??"Berke");
         
         console.log('✅ Mesaj başarıyla gönderildi');
         
@@ -246,7 +246,9 @@ if (!typingRef.current){
                   <div
                     key={room.id}
                     onClick={() => {
+                      console.log('Oda seçildi:', room.id);
                       setRoomId(room.id);
+                      console.log('Oda seçildi1:', roomId);
                       setSelectedRoomId(room.id);
                       setSelectedCustomer(null); 
                       console.log('Oda seçildi:', room.id); 
@@ -432,7 +434,7 @@ if (!typingRef.current){
                       disabled={!isConnected}
                     />
                     <button
-                      onClick={handleSendReply}
+                      onClick={() => handleSendReply(roomId)}
                       disabled={!replyMessage.trim() || !isConnected}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
                     >

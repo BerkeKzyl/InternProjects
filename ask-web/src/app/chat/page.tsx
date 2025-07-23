@@ -19,8 +19,11 @@ function ChatContent() {
   const router = useRouter();
   const name = searchParams.get('name') || 'Kullanıcı';
 
+
   // Oda yönetimi state'leri
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+
+  const [roomId, setRoomId] = useState<string | null>(null);
 
   // Oda listesi
   const rooms = [
@@ -100,7 +103,7 @@ function ChatContent() {
       const targetName = "müşteri hizmetleri";
       const senderName = name;
 
-      connectionRef.current?.invoke("UserTyping", senderName, targetName);
+      connectionRef.current?.invoke("UserTyping", senderName, targetName, roomId);
       typingRef.current = true;
 
       console.log(' Hub invoke edildi!');
@@ -118,6 +121,8 @@ function ChatContent() {
   const handleMicrophoneClick = () => {
     // Voice recording functionality
   };
+
+
 
   const handleEndChat = async () => {
     if (confirm('Talebi sonlandırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
@@ -184,10 +189,25 @@ function ChatContent() {
               {rooms.map((room) => (
                 <div key={room.id} className="w-full">
                   <CartoonButton
+                  
+                    
                     label={`${room.icon} ${room.name}`}
                     color={selectedRoomId === room.id ? "bg-cyan-500" : room.color}
                     disabled={false}
-                    onClick={() => handleRoomClick(room.id)}
+                    onClick={() =>
+                       {
+                        handleRoomClick(room.id)
+                        setRoomId(room.id)
+                        console.log('Oda seçildi:', room.id);
+                        console.log('Oda seçildi1:', roomId);
+                        setSelectedRoomId(room.id);
+                        console.log('Oda seçildi:', room.id); 
+
+                    }
+
+
+
+                    }
                   />
                   <div className="mt-1 text-center">
                     <p className="text-gray-500 text-xs">
@@ -298,6 +318,7 @@ function ChatContent() {
                         </Button>
                       </div>
                       <Button 
+                        onClick={() => handleSendReply(roomId)}
                         type="submit" 
                         size="sm" 
                         className="ml-auto gap-1.5 bg-cyan-600 hover:bg-cyan-700"

@@ -20,6 +20,8 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [typingUsers, setTypingUsers] = useState<string | null>(null);
   const connectionRef = useRef<HubConnection | null>(null);
+  const [roomId, setRoomId] = useState<string | null>(null);
+
 
   useEffect(() => {
     console.log('useEffect çalıştı - connection kuruluyor...');
@@ -112,7 +114,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
   }, [hubUrl, userName]);
 
   // Mesaj gönderme fonksiyonu
-  const sendMessage = async (message: string, customUserName?: string) => {
+  const sendMessage = async (message: string, customUserName?: string, roomId?: string) => {
     console.log('sendMessage çağrıldı:', message);
     
     if (!connectionRef.current || !isConnected) {
