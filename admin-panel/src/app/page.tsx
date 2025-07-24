@@ -77,29 +77,27 @@ export default function AdminPanel() {
   
 
   const handleTyping = () => {
+
     console.log(' ADMIN handleTyping tetiklendi!');
-    // File attachment functionality
-if (!typingRef.current){
-  console.log(' ADMIN Typing gönderiliyor...');
+    if (!typingRef.current){
+      console.log(' ADMIN Typing gönderiliyor...');
 
-  const targetName = selectedCustomer;
-  const senderName = "müşteri hizmetleri";
+      const targetName = roomId;
+      const senderName = "müşteri hizmetleri";
 
-  connectionRef.current?.invoke("UserTyping", senderName, targetName);
-  console.log(' ADMIN Hub invoke edildi!'); 
+      connectionRef.current?.invoke("UserTyping", senderName, targetName, roomId);
+      console.log(' ADMIN Hub invoke edildi!'); 
   
-  typingRef.current = true;
+      typingRef.current = true;
 
-  if (timeoutRef.current) {
-    clearTimeout(timeoutRef.current);
-  }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-  timeoutRef.current = setTimeout(() => {
-  typingRef.current = false;
-  }, 3000);
-
-
-  }
+      timeoutRef.current = setTimeout(() => {
+      typingRef.current = false;
+      }, 3000);
+    }
   };
     
 
@@ -249,6 +247,7 @@ if (!typingRef.current){
                       console.log('Oda seçildi:', room.id);
                       setRoomId(room.id);
                       console.log('Oda seçildi1:', roomId);
+                      connectionRef.current?.invoke("JoinRoom", room.id);
                       setSelectedRoomId(room.id);
                       setSelectedCustomer(null); 
                       console.log('Oda seçildi:', room.id); 
@@ -419,8 +418,9 @@ if (!typingRef.current){
                 </div>
 
                 {/* Chat Input */}
-                
+                {console.log('typingUsers:', typingUsers)}
                 <div className="p-4 border-t border-gray-200 text-sm text-gray-500 py-3">
+                  
                 {typingUsers && <p>{typingUsers} yazıyor...</p>}
                   <div className="flex space-x-2 ">
                     <input

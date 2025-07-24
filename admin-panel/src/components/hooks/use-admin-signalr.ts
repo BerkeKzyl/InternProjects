@@ -87,8 +87,8 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
           }
         });
 
-        newConnection.on("ReceiveTyping", (senderName, targetName) => {
-          console.log('Admin - kullanıcı yazıyor:', { senderName, targetName });
+        newConnection.on("ReceiveTyping", (senderName, targetName, roomId) => {
+          console.log('Admin - kullanıcı yazıyor:', { senderName, targetName, roomId });
           setTypingUsers(senderName);
 
           setTimeout(() => {

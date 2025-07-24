@@ -52,7 +52,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
         connectionRef.current = newConnection;
 
         // Hub'dan gelen mesajları dinle
-        newConnection.on("ReceiveMessage", (user, message, messageId, timestamp) => {
+        newConnection.on("ReceiveMessage", (user, message, messageId, timestamp, roomId) => {
           console.log('Yeni mesaj geldi:', { user, message, messageId, timestamp });
           
           const newMessage: Message = {
@@ -74,14 +74,14 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
           });
         });
 
-        newConnection.on("ReceiveTyping", (senderName, targetName) => {
-          console.log('Musteri -  kullanıcı yazıyor :',{senderName, targetName});
-         setTypingUsers(senderName);
-      
-         setTimeout(() => {
-          setTypingUsers(null);
-         }, 3000);
-      });
+        newConnection.on("ReceiveTyping", (senderName, targetName, roomId) => {
+            console.log('Musteri -  kullanıcı yazıyor :',{senderName, targetName, roomId});
+          setTypingUsers(senderName);
+        
+          setTimeout(() => {
+            setTypingUsers(null);
+          }, 3000);
+        });
       
 
 

@@ -82,7 +82,7 @@ function ChatContent() {
 
     try {
       // SignalR ile mesaj gönder
-      await sendSignalRMessage(messageContent);
+      await sendSignalRMessage(messageContent, name, roomId??"");
       console.log('Mesaj gönderildi:', messageContent);
     } catch (error) {
       console.error('Mesaj gönderme hatası:', error);
@@ -100,7 +100,7 @@ function ChatContent() {
     if (!typingRef.current){
       console.log(' Typing gönderiliyor...');
 
-      const targetName = "müşteri hizmetleri";
+      const targetName = roomId??"";
       const senderName = name;
 
       connectionRef.current?.invoke("UserTyping", senderName, targetName, roomId);
@@ -200,6 +200,7 @@ function ChatContent() {
                         setRoomId(room.id)
                         console.log('Oda seçildi:', room.id);
                         console.log('Oda seçildi1:', roomId);
+                        connectionRef.current?.invoke("JoinRoom", room.id);
                         setSelectedRoomId(room.id);
                         console.log('Oda seçildi:', room.id); 
 
@@ -318,7 +319,7 @@ function ChatContent() {
                         </Button>
                       </div>
                       <Button 
-                        onClick={() => handleSendReply(roomId)}
+                        onClick={() => sendSignalRMessage(input, name, roomId??"")}
                         type="submit" 
                         size="sm" 
                         className="ml-auto gap-1.5 bg-cyan-600 hover:bg-cyan-700"

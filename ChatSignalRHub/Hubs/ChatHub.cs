@@ -16,6 +16,13 @@ namespace ChatSignalRHub.Hubs
         }
 
 
+        public async Task JoinRoom(string roomId)
+        {
+            Console.WriteLine($"Kullanıcı {Context.ConnectionId} - {roomId} odasına katıldı");
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+            await Clients.Caller.SendAsync("JoinedRoom", roomId);
+        }
+
 
 
 

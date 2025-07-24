@@ -18,12 +18,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 1,
@@ -34,8 +30,7 @@
               "RelativeToolTip": "ChatSignalRHub\\Properties\\launchSettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-07-23T11:58:31.01Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-23T11:58:31.01Z"
             },
             {
               "$type": "Document",
@@ -45,7 +40,7 @@
               "RelativeDocumentMoniker": "ChatSignalRHub\\Hubs\\ChatHub.cs",
               "ToolTip": "C:\\Users\\kuzey\\OneDrive\\Desktop\\LCWProjects\\ChatSignalRHub\\Hubs\\ChatHub.cs",
               "RelativeToolTip": "ChatSignalRHub\\Hubs\\ChatHub.cs",
-              "ViewState": "AgIAACcAAAAAAAAAAAAYwDMAAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBYAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-23T11:52:16.201Z",
               "EditorCaption": ""

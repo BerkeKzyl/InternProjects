@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChatSignalRHub")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e37eab0e98ceb0565da9e26958451c6a3c5e6609")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+49defdce96903b8b232002cd5c54b1b00e79b3c2")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChatSignalRHub")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChatSignalRHub")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
