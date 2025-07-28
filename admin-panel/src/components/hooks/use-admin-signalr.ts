@@ -7,6 +7,7 @@ interface Message {
   sender: string;
   customerName: string; // Hangi müşteriden geldiği
   timestamp: Date;
+  roomId: string;
 }
 
 interface UseAdminSignalRProps {
@@ -33,7 +34,7 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
       connectionRef.current.stop();
       connectionRef.current = null;
     }
-
+    
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${hubUrl}?user=admin_${encodeURIComponent(adminName)}`)
       .withAutomaticReconnect()
@@ -63,7 +64,8 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
               content: message,
               sender: "customer", // Müşteriden gelen mesaj
               customerName: user,
-              timestamp: new Date(timestamp)
+              timestamp: new Date(timestamp),
+              roomId: roomId
             };
             
             setMessages(prevMessages => {
@@ -139,7 +141,8 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
         content: message,
         sender: "admin",
         customerName: customerName,
-        timestamp: new Date()
+        timestamp: new Date(),
+        roomId: roomId
       };
       
       setMessages(prevMessages => [...prevMessages, adminMessage]);
@@ -161,6 +164,9 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
     // O müşteriye ait mesajları da temizle (opsiyonel)
     setMessages(prev => prev.filter(msg => msg.customerName !== customerName));
   };
+  const getMessagesForRoom = (roomId: string) => {
+    return messages.filter(msg => msg.roomId === roomId);
+  };
 
   return {
     messages,
@@ -172,6 +178,7 @@ export function useAdminSignalR({ hubUrl, adminName }: UseAdminSignalRProps) {
     sendReplyToCustomer,
     getMessagesForCustomer,
     removeCustomer,
+    getMessagesForRoom,
     disconnect: () => {
       if (connectionRef.current) {
         connectionRef.current.stop();

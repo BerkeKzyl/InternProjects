@@ -36,7 +36,7 @@ function ChatContent() {
   // Oda seçimi handler
   const handleRoomClick = (roomId: string) => {
     setSelectedRoomId(roomId);
-    console.log('Seçilen oda:', roomId); // Teknik kısım buraya eklenecek
+    console.log('Seçilen oda:', roomId); 
   };
 
   // SignalR bağlantısı
@@ -47,7 +47,7 @@ function ChatContent() {
     isConnected, 
     isConnecting,
     sendMessage: sendSignalRMessage,
-    addLocalMessage // Yerel mesaj ekleme fonksiyonu
+    addLocalMessage 
   } = useSignalR({
     hubUrl: "http://localhost:5180/chathub", // Hub URL'i
     userName: name
@@ -65,7 +65,8 @@ function ChatContent() {
         id: `welcome-${Date.now()}`,
         content: `${selectedRoom?.name} odasına hoş geldiniz! Size nasıl yardımcı olabilirim?`,
         sender: "support",
-        timestamp: new Date()
+        timestamp: new Date(),
+        isOwn: false
       });
       setWelcomeMessageAdded(true);
     }
@@ -100,7 +101,7 @@ function ChatContent() {
     if (!typingRef.current){
       console.log(' Typing gönderiliyor...');
 
-      const targetName = roomId??"";
+      const targetName = selectedRoomId??"";
       const senderName = name;
 
       connectionRef.current?.invoke("UserTyping", senderName, targetName, roomId);
@@ -251,7 +252,7 @@ function ChatContent() {
                     {signalRMessages.map((message) => (
                       <ChatBubble
                         key={message.id}
-                        variant={message.sender === "user" ? "sent" : "received"}
+                        variant={message.isOwn ? "sent" : "received"}
                       >
                         <ChatBubbleAvatar
                           className="h-8 w-8 shrink-0"
@@ -262,10 +263,12 @@ function ChatContent() {
                           }
                           fallback={message.sender === "user" ? name.charAt(0).toUpperCase() : "AI"}
                         />
-                        <ChatBubbleMessage
-                          variant={message.sender === "user" ? "sent" : "received"}
-                        >
-                          {message.content}
+                        <ChatBubbleMessage variant={message.isOwn ? "sent" : "received"}>
+                           <p className="text-sm">
+                              <span className="font-bold text-base">
+                                  {message.sender}:
+                              </span> {message.content}
+                            </p>
                         </ChatBubbleMessage>
                       </ChatBubble>
                     ))}
@@ -319,7 +322,7 @@ function ChatContent() {
                         </Button>
                       </div>
                       <Button 
-                        onClick={() => sendSignalRMessage(input, name, roomId??"")}
+                        onClick={handleSubmit}
                         type="submit" 
                         size="sm" 
                         className="ml-auto gap-1.5 bg-cyan-600 hover:bg-cyan-700"

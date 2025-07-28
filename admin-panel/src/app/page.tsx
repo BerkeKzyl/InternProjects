@@ -33,8 +33,8 @@ export default function AdminPanel() {
     isConnecting,
     activeCustomers,
     sendReplyToCustomer,
-    customerName,
     getMessagesForCustomer,
+    getMessagesForRoom,
     connectionRef,
     typingUsers,
 
@@ -43,6 +43,7 @@ export default function AdminPanel() {
     hubUrl: "http://localhost:5180/chathub",
     adminName: "Destek Ekibi"
   });
+
 
   // İlk müşteriyi otomatik seç
   useEffect(() => {
@@ -82,7 +83,7 @@ export default function AdminPanel() {
     if (!typingRef.current){
       console.log(' ADMIN Typing gönderiliyor...');
 
-      const targetName = roomId;
+      const targetName = selectedRoomId??"";
       const senderName = "müşteri hizmetleri";
 
       connectionRef.current?.invoke("UserTyping", senderName, targetName, roomId);
@@ -194,7 +195,9 @@ export default function AdminPanel() {
     });
   };
 
-  const selectedCustomerMessages = selectedCustomer ? getMessagesForCustomer(selectedCustomer) : [];
+  var selectedCustomerMessages = selectedRoomId
+  ? getMessagesForRoom(selectedRoomId)
+  : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -271,7 +274,7 @@ export default function AdminPanel() {
             </div>
 
             {/* MEVCUT: Aktif Chat'ler Bölümü */}
-            <div className="p-4 border-b border-gray-200">
+            {/* <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-900">Aktif Chat'ler</h3>
                 <div className="flex items-center">
@@ -279,9 +282,9 @@ export default function AdminPanel() {
                   <span className="text-sm text-gray-600">{activeCustomers.length}</span>
                 </div>
               </div>
-            </div>
+            </div> */}
             
-            <div className="flex-1 overflow-y-auto">
+            {/* <div className="flex-1 overflow-y-auto">
               {activeCustomers.length === 0 ? (
                 <div className="p-6 text-center">
                   <ChatBubbleLeftRightIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
@@ -344,7 +347,7 @@ export default function AdminPanel() {
                   })}
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
 
           {/* Sağ Panel - Chat Alanı */}
@@ -406,7 +409,11 @@ export default function AdminPanel() {
                             : 'bg-gray-200 text-gray-900'
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
+                      <p className="text-sm">
+                      <span className="font-bold text-base">
+                      {message.sender === "admin" ? "Admin" : message.customerName}:
+                      </span> {message.content}
+                      </p>
                         <p className={`text-xs mt-1 ${
                           message.sender === 'admin' ? 'text-blue-100' : 'text-gray-500'
                         }`}>

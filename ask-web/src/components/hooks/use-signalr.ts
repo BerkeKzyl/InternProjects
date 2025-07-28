@@ -6,6 +6,8 @@ interface Message {
   content: string;
   sender: string;
   timestamp: Date;
+  roomId?: string;
+  isOwn: boolean;
 }
 
 interface UseSignalRProps {
@@ -58,8 +60,10 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
           const newMessage: Message = {
             id: messageId,
             content: message,
-            sender: user === userName ? "user" : "support", 
-            timestamp: new Date(timestamp)
+            sender: user,
+            isOwn: user === userName,
+            timestamp: new Date(timestamp),
+            roomId
           };
           
           setMessages(prevMessages => {

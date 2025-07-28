@@ -6,7 +6,7 @@ namespace ChatSignalRHub.Hubs
     {
 
         public async Task UserTyping(string senderName, string targetName, string roomId)
-        {
+      {
             Console.WriteLine($"kullanıcı yazıyor - User: {senderName}");
             
             
@@ -15,11 +15,23 @@ namespace ChatSignalRHub.Hubs
             
         }
 
-
+        private static Dictionary<string, string> userRooms = new Dictionary<string, string>();
         public async Task JoinRoom(string roomId)
         {
-            Console.WriteLine($"Kullanıcı {Context.ConnectionId} - {roomId} odasına katıldı");
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+            var connectionId = Context.ConnectionId;
+
+            // Eğer başka bir odadaysa önce onu sil
+            if (userRooms.TryGetValue(connectionId, out var previousRoom))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, previousRoom);
+                Console.WriteLine($"Kullanıcı {connectionId} - {previousRoom} odasından ayrıldı");
+            }
+
+            // Yeni odaya ekle
+            await Groups.AddToGroupAsync(connectionId, roomId);
+            userRooms[connectionId] = roomId;
+
+            Console.WriteLine($"Kullanıcı {connectionId} - {roomId} odasına katıldı");
             await Clients.Caller.SendAsync("JoinedRoom", roomId);
         }
 
@@ -56,6 +68,7 @@ namespace ChatSignalRHub.Hubs
 
         // Client bağlandığında
         public override async Task OnConnectedAsync()
+        
         {
             // URL'den kullanıcı adını al
             var userName = Context.GetHttpContext()?.Request.Query["user"].ToString();
@@ -77,11 +90,26 @@ namespace ChatSignalRHub.Hubs
             
             await base.OnConnectedAsync();
         }
-        
+
         // Client bağlantısı kesildiğinde  
+        //public override async Task OnDisconnectedAsync(Exception exception)
+        //{
+        //    Console.WriteLine($"Client bağlantısı kesildi: {Context.ConnectionId}");
+        //    await base.OnDisconnectedAsync(exception);
+        //}
+
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            Console.WriteLine($"Client bağlantısı kesildi: {Context.ConnectionId}");
+            var connectionId = Context.ConnectionId;
+
+            // Kullanıcı bağlantısı kesilince sözlükten çıkar
+            if (userRooms.TryGetValue(connectionId, out var roomId))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, roomId);
+                userRooms.Remove(connectionId);
+            }
+
+            Console.WriteLine($"Client bağlantısı kesildi: {connectionId}");
             await base.OnDisconnectedAsync(exception);
         }
     }
