@@ -15,7 +15,8 @@ export default function AdminPanel() {
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
-  const [readMessages, setReadMessages] = useState<Set<string>>(new Set()); // Okunmuş mesaj ID'leri
+  const [readMessages, setReadMessages] = useState<Set<string>>(new Set()); 
+  const [roomId, setRoomId] = useState<string | null>(null);
   
   // Oda listesi (ask-web ile aynı roomId'ler)
   const rooms = [
@@ -32,8 +33,8 @@ export default function AdminPanel() {
     isConnecting,
     activeCustomers,
     sendReplyToCustomer,
-    customerName,
     getMessagesForCustomer,
+    getMessagesForRoom,
     connectionRef,
     typingUsers,
 
@@ -42,6 +43,7 @@ export default function AdminPanel() {
     hubUrl: "http://localhost:5180/chathub",
     adminName: "Destek Ekibi"
   });
+
 
   // İlk müşteriyi otomatik seç
   useEffect(() => {
@@ -63,9 +65,9 @@ export default function AdminPanel() {
     }
   }, [selectedCustomer, messages]);
 
-  const handleSendReply = async () => {
+  const handleSendReply = async (roomId: string | null) => {
     if (replyMessage.trim() && selectedCustomer) {
-      await sendReplyToCustomer(selectedCustomer, replyMessage);
+      await sendReplyToCustomer(selectedCustomer, replyMessage, roomId??"");
       setReplyMessage('');
     }
   };
@@ -76,29 +78,27 @@ export default function AdminPanel() {
   
 
   const handleTyping = () => {
+
     console.log(' ADMIN handleTyping tetiklendi!');
-    // File attachment functionality
-if (!typingRef.current){
-  console.log(' ADMIN Typing gönderiliyor...');
+    if (!typingRef.current){
+      console.log(' ADMIN Typing gönderiliyor...');
 
-  const targetName = selectedCustomer;
-  const senderName = "müşteri hizmetleri";
+      const targetName = selectedRoomId??"";
+      const senderName = "müşteri hizmetleri";
 
-  connectionRef.current?.invoke("UserTyping", senderName, targetName);
-  console.log(' ADMIN Hub invoke edildi!'); 
+      connectionRef.current?.invoke("UserTyping", senderName, targetName, roomId);
+      console.log(' ADMIN Hub invoke edildi!'); 
   
-  typingRef.current = true;
+      typingRef.current = true;
 
-  if (timeoutRef.current) {
-    clearTimeout(timeoutRef.current);
-  }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-  timeoutRef.current = setTimeout(() => {
-  typingRef.current = false;
-  }, 3000);
-
-
-  }
+      timeoutRef.current = setTimeout(() => {
+      typingRef.current = false;
+      }, 3000);
+    }
   };
     
 
@@ -114,7 +114,7 @@ if (!typingRef.current){
       try {
         
  
-        await sendReplyToCustomer(customerName, ` Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`);
+        await sendReplyToCustomer(customerName, ` Bu sohbet yönetici tarafından şüpheli talep olarak işaretlenip sonlandırılmıştır.`, roomId??"Berke");
         
         console.log('✅ Mesaj başarıyla gönderildi');
         
@@ -195,7 +195,9 @@ if (!typingRef.current){
     });
   };
 
-  const selectedCustomerMessages = selectedCustomer ? getMessagesForCustomer(selectedCustomer) : [];
+  var selectedCustomerMessages = selectedRoomId
+  ? getMessagesForRoom(selectedRoomId)
+  : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -245,9 +247,13 @@ if (!typingRef.current){
                   <div
                     key={room.id}
                     onClick={() => {
+                      console.log('Oda seçildi:', room.id);
+                      setRoomId(room.id);
+                      console.log('Oda seçildi1:', roomId);
+                      connectionRef.current?.invoke("JoinRoom", room.id);
                       setSelectedRoomId(room.id);
-                      setSelectedCustomer(null); // Müşteri seçimini temizle
-                      console.log('Oda seçildi:', room.id); // Sen teknik kodları buraya ekleyeceksin
+                      setSelectedCustomer(null); 
+                      console.log('Oda seçildi:', room.id); 
                     }}
                     className={`flex items-center justify-between p-2 rounded-lg cursor-pointer border ${
                       selectedRoomId === room.id 
@@ -268,7 +274,7 @@ if (!typingRef.current){
             </div>
 
             {/* MEVCUT: Aktif Chat'ler Bölümü */}
-            <div className="p-4 border-b border-gray-200">
+            {/* <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-900">Aktif Chat'ler</h3>
                 <div className="flex items-center">
@@ -276,9 +282,9 @@ if (!typingRef.current){
                   <span className="text-sm text-gray-600">{activeCustomers.length}</span>
                 </div>
               </div>
-            </div>
+            </div> */}
             
-            <div className="flex-1 overflow-y-auto">
+            {/* <div className="flex-1 overflow-y-auto">
               {activeCustomers.length === 0 ? (
                 <div className="p-6 text-center">
                   <ChatBubbleLeftRightIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
@@ -341,7 +347,7 @@ if (!typingRef.current){
                   })}
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
 
           {/* Sağ Panel - Chat Alanı */}
@@ -403,7 +409,11 @@ if (!typingRef.current){
                             : 'bg-gray-200 text-gray-900'
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
+                      <p className="text-sm">
+                      <span className="font-bold text-base">
+                      {message.sender === "admin" ? "Admin" : message.customerName}:
+                      </span> {message.content}
+                      </p>
                         <p className={`text-xs mt-1 ${
                           message.sender === 'admin' ? 'text-blue-100' : 'text-gray-500'
                         }`}>
@@ -415,22 +425,23 @@ if (!typingRef.current){
                 </div>
 
                 {/* Chat Input */}
-                
+                {console.log('typingUsers:', typingUsers)}
                 <div className="p-4 border-t border-gray-200 text-sm text-gray-500 py-3">
+                  
                 {typingUsers && <p>{typingUsers} yazıyor...</p>}
                   <div className="flex space-x-2 ">
                     <input
                       type="text"
                       value={replyMessage}
                       onChange={(e) => setReplyMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendReply()}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendReply(roomId)}
                       onKeyDown={(e) => handleTyping()}
                       placeholder="Mesajınızı yazın..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-700 placeholder:font-medium text-gray-900 font-medium"
                       disabled={!isConnected}
                     />
                     <button
-                      onClick={handleSendReply}
+                      onClick={() => handleSendReply(roomId)}
                       disabled={!replyMessage.trim() || !isConnected}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
                     >

@@ -19,8 +19,11 @@ function ChatContent() {
   const router = useRouter();
   const name = searchParams.get('name') || 'Kullanıcı';
 
+
   // Oda yönetimi state'leri
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+
+  const [roomId, setRoomId] = useState<string | null>(null);
 
   // Oda listesi
   const rooms = [
@@ -33,7 +36,7 @@ function ChatContent() {
   // Oda seçimi handler
   const handleRoomClick = (roomId: string) => {
     setSelectedRoomId(roomId);
-    console.log('Seçilen oda:', roomId); // Teknik kısım buraya eklenecek
+    console.log('Seçilen oda:', roomId); 
   };
 
   // SignalR bağlantısı
@@ -44,7 +47,7 @@ function ChatContent() {
     isConnected, 
     isConnecting,
     sendMessage: sendSignalRMessage,
-    addLocalMessage // Yerel mesaj ekleme fonksiyonu
+    addLocalMessage 
   } = useSignalR({
     hubUrl: "http://localhost:5180/chathub", // Hub URL'i
     userName: name
@@ -62,7 +65,8 @@ function ChatContent() {
         id: `welcome-${Date.now()}`,
         content: `${selectedRoom?.name} odasına hoş geldiniz! Size nasıl yardımcı olabilirim?`,
         sender: "support",
-        timestamp: new Date()
+        timestamp: new Date(),
+        isOwn: false
       });
       setWelcomeMessageAdded(true);
     }
@@ -79,7 +83,7 @@ function ChatContent() {
 
     try {
       // SignalR ile mesaj gönder
-      await sendSignalRMessage(messageContent);
+      await sendSignalRMessage(messageContent, name, roomId??"");
       console.log('Mesaj gönderildi:', messageContent);
     } catch (error) {
       console.error('Mesaj gönderme hatası:', error);
@@ -97,10 +101,10 @@ function ChatContent() {
     if (!typingRef.current){
       console.log(' Typing gönderiliyor...');
 
-      const targetName = "müşteri hizmetleri";
+      const targetName = selectedRoomId??"";
       const senderName = name;
 
-      connectionRef.current?.invoke("UserTyping", senderName, targetName);
+      connectionRef.current?.invoke("UserTyping", senderName, targetName, roomId);
       typingRef.current = true;
 
       console.log(' Hub invoke edildi!');
@@ -118,6 +122,8 @@ function ChatContent() {
   const handleMicrophoneClick = () => {
     // Voice recording functionality
   };
+
+
 
   const handleEndChat = async () => {
     if (confirm('Talebi sonlandırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
@@ -184,10 +190,26 @@ function ChatContent() {
               {rooms.map((room) => (
                 <div key={room.id} className="w-full">
                   <CartoonButton
+                  
+                    
                     label={`${room.icon} ${room.name}`}
                     color={selectedRoomId === room.id ? "bg-cyan-500" : room.color}
                     disabled={false}
-                    onClick={() => handleRoomClick(room.id)}
+                    onClick={() =>
+                       {
+                        handleRoomClick(room.id)
+                        setRoomId(room.id)
+                        console.log('Oda seçildi:', room.id);
+                        console.log('Oda seçildi1:', roomId);
+                        connectionRef.current?.invoke("JoinRoom", room.id);
+                        setSelectedRoomId(room.id);
+                        console.log('Oda seçildi:', room.id); 
+
+                    }
+
+
+
+                    }
                   />
                   <div className="mt-1 text-center">
                     <p className="text-gray-500 text-xs">
@@ -230,7 +252,7 @@ function ChatContent() {
                     {signalRMessages.map((message) => (
                       <ChatBubble
                         key={message.id}
-                        variant={message.sender === "user" ? "sent" : "received"}
+                        variant={message.isOwn ? "sent" : "received"}
                       >
                         <ChatBubbleAvatar
                           className="h-8 w-8 shrink-0"
@@ -241,10 +263,12 @@ function ChatContent() {
                           }
                           fallback={message.sender === "user" ? name.charAt(0).toUpperCase() : "AI"}
                         />
-                        <ChatBubbleMessage
-                          variant={message.sender === "user" ? "sent" : "received"}
-                        >
-                          {message.content}
+                        <ChatBubbleMessage variant={message.isOwn ? "sent" : "received"}>
+                           <p className="text-sm">
+                              <span className="font-bold text-base">
+                                  {message.sender}:
+                              </span> {message.content}
+                            </p>
                         </ChatBubbleMessage>
                       </ChatBubble>
                     ))}
@@ -298,6 +322,7 @@ function ChatContent() {
                         </Button>
                       </div>
                       <Button 
+                        onClick={handleSubmit}
                         type="submit" 
                         size="sm" 
                         className="ml-auto gap-1.5 bg-cyan-600 hover:bg-cyan-700"

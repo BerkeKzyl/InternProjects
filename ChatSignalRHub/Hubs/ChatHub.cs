@@ -5,58 +5,78 @@ namespace ChatSignalRHub.Hubs
     public class ChatHub : Hub
     {
 
-        public async Task UserTyping(string senderName, string targetName)
-        {
+        public async Task UserTyping(string senderName, string targetName, string roomId)
+      {
             Console.WriteLine($"kullanıcı yazıyor - User: {senderName}");
             
             
-            await Clients.All.SendAsync("ReceiveTyping", senderName, targetName);
+            await Clients.Group(roomId).SendAsync("ReceiveTyping", senderName, targetName, roomId);
             
             
+        }
+
+        private static Dictionary<string, string> userRooms = new Dictionary<string, string>();
+        public async Task JoinRoom(string roomId)
+        {
+            var connectionId = Context.ConnectionId;
+
+            // Eğer başka bir odadaysa önce onu sil
+            if (userRooms.TryGetValue(connectionId, out var previousRoom))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, previousRoom);
+                Console.WriteLine($"Kullanıcı {connectionId} - {previousRoom} odasından ayrıldı");
+            }
+
+            // Yeni odaya ekle
+            await Groups.AddToGroupAsync(connectionId, roomId);
+            userRooms[connectionId] = roomId;
+
+            Console.WriteLine($"Kullanıcı {connectionId} - {roomId} odasına katıldı");
+            await Clients.Caller.SendAsync("JoinedRoom", roomId);
         }
 
 
 
 
-
-
-
-
-
-
-
-        public async Task SendMessage(string user, string message)
+        public async Task SendMessage(string user, string message, string roomId)
         {
             Console.WriteLine($"Mesaj alındı - User: {user}, Message: {message}");
-            
+
             var messageId = Guid.NewGuid().ToString();
             var timestamp = DateTime.Now;
-            
-            if (user.StartsWith("admin_"))
-            {
-                Console.WriteLine("Admin mesajı - müşterilere gönderiliyor");
-                await Clients.All.SendAsync("ReceiveMessage", user, message, messageId, timestamp);
+            try {
+                if (user.StartsWith("admin_"))
+                {
+                    Console.WriteLine("Admin mesajı - müşterilere gönderiliyor");
+                    await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
 
 
+                }
+                else
+                {
+                    Console.WriteLine("Müşteri mesajı - admin'lere gönderiliyor");
+                    await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message, messageId, timestamp, roomId);
+                }
             }
-            else
+            catch (Exception ex)
             {
-          
-                Console.WriteLine("Müşteri mesajı - admin'lere gönderiliyor");
-                await Clients.All.SendAsync("ReceiveMessage", user, message, messageId, timestamp);
-
+                Console.WriteLine($"Mesaj gönderilirken hata oluştu: {ex.Message}");
+                await Clients.Caller.SendAsync("ReceiveError", "Mesaj gönderilirken bir hata oluştu.");
             }
         }
-        
+
+
         // Client bağlandığında
         public override async Task OnConnectedAsync()
+        
         {
             // URL'den kullanıcı adını al
             var userName = Context.GetHttpContext()?.Request.Query["user"].ToString();
             
             Console.WriteLine($"Client bağlandı: {Context.ConnectionId}, User: {userName}");
             
-            // Eğer kullanıcı adı varsa hoş geldin mesajı gönder
+
+            
             if (!string.IsNullOrEmpty(userName))
             {
                 await Clients.Client(Context.ConnectionId).SendAsync(
@@ -70,11 +90,26 @@ namespace ChatSignalRHub.Hubs
             
             await base.OnConnectedAsync();
         }
-        
+
         // Client bağlantısı kesildiğinde  
+        //public override async Task OnDisconnectedAsync(Exception exception)
+        //{
+        //    Console.WriteLine($"Client bağlantısı kesildi: {Context.ConnectionId}");
+        //    await base.OnDisconnectedAsync(exception);
+        //}
+
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            Console.WriteLine($"Client bağlantısı kesildi: {Context.ConnectionId}");
+            var connectionId = Context.ConnectionId;
+
+            // Kullanıcı bağlantısı kesilince sözlükten çıkar
+            if (userRooms.TryGetValue(connectionId, out var roomId))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, roomId);
+                userRooms.Remove(connectionId);
+            }
+
+            Console.WriteLine($"Client bağlantısı kesildi: {connectionId}");
             await base.OnDisconnectedAsync(exception);
         }
     }

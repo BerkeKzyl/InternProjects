@@ -6,6 +6,8 @@ interface Message {
   content: string;
   sender: string;
   timestamp: Date;
+  roomId?: string;
+  isOwn: boolean;
 }
 
 interface UseSignalRProps {
@@ -20,6 +22,8 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [typingUsers, setTypingUsers] = useState<string | null>(null);
   const connectionRef = useRef<HubConnection | null>(null);
+  const [roomId, setRoomId] = useState<string | null>(null);
+
 
   useEffect(() => {
     console.log('useEffect çalıştı - connection kuruluyor...');
@@ -50,14 +54,16 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
         connectionRef.current = newConnection;
 
         // Hub'dan gelen mesajları dinle
-        newConnection.on("ReceiveMessage", (user, message, messageId, timestamp) => {
+        newConnection.on("ReceiveMessage", (user, message, messageId, timestamp, roomId) => {
           console.log('Yeni mesaj geldi:', { user, message, messageId, timestamp });
           
           const newMessage: Message = {
             id: messageId,
             content: message,
-            sender: user === userName ? "user" : "support", 
-            timestamp: new Date(timestamp)
+            sender: user,
+            isOwn: user === userName,
+            timestamp: new Date(timestamp),
+            roomId
           };
           
           setMessages(prevMessages => {
@@ -72,14 +78,14 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
           });
         });
 
-        newConnection.on("ReceiveTyping", (senderName, targetName) => {
-          console.log('Musteri -  kullanıcı yazıyor :',{senderName, targetName});
-         setTypingUsers(senderName);
-      
-         setTimeout(() => {
-          setTypingUsers(null);
-         }, 3000);
-      });
+        newConnection.on("ReceiveTyping", (senderName, targetName, roomId) => {
+            console.log('Musteri -  kullanıcı yazıyor :',{senderName, targetName, roomId});
+          setTypingUsers(senderName);
+        
+          setTimeout(() => {
+            setTypingUsers(null);
+          }, 3000);
+        });
       
 
 
@@ -112,7 +118,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
   }, [hubUrl, userName]);
 
   // Mesaj gönderme fonksiyonu
-  const sendMessage = async (message: string, customUserName?: string) => {
+  const sendMessage = async (message: string, customUserName?: string, roomId?: string) => {
     console.log('sendMessage çağrıldı:', message);
     
     if (!connectionRef.current || !isConnected) {
@@ -123,7 +129,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
     try {
       // Hub'daki "SendMessage" metodunu çağır (userName, message)
       const senderName = customUserName || userName;
-      await connectionRef.current.invoke("SendMessage", senderName, message);
+      await connectionRef.current.invoke("SendMessage", senderName, message, roomId);
       console.log('Mesaj hub\'a gönderildi!');
     } catch (error) {
       console.error('Mesaj gönderme hatası:', error);
