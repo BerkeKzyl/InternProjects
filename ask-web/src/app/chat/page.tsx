@@ -37,6 +37,9 @@ function ChatContent() {
   const handleRoomClick = (roomId: string) => {
     setSelectedRoomId(roomId);
     console.log('Seçilen oda:', roomId); 
+
+    setMessages([]);
+    setWelcomeMessageAdded(false);
   };
 
   // SignalR bağlantısı
@@ -47,7 +50,8 @@ function ChatContent() {
     isConnected, 
     isConnecting,
     sendMessage: sendSignalRMessage,
-    addLocalMessage 
+    addLocalMessage,
+    setMessages
   } = useSignalR({
     hubUrl: "http://localhost:5180/chathub", // Hub URL'i
     userName: name
@@ -204,6 +208,9 @@ function ChatContent() {
                         connectionRef.current?.invoke("JoinRoom", room.id);
                         setSelectedRoomId(room.id);
                         console.log('Oda seçildi:', room.id); 
+
+                        setMessages([]);
+                        setWelcomeMessageAdded(false);
 
                     }
 

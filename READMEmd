@@ -1,0 +1,136 @@
+# LC Waikiki Canlı Destek Sistemi
+
+Modern web teknolojileri kullanılarak geliştirilmiş, gerçek zamanlı iletişim sağlayan kapsamlı canlı destek sistemi.
+
+## 🚀 Özellikler
+
+- **Gerçek Zamanlı Mesajlaşma**: SignalR ile anlık iletişim
+- **Oda Tabanlı Destek**: Farklı konular için ayrı destek odaları
+- **3D İnteraktif Robot**: Spline ile oluşturulmuş Beemo karakteri
+- **Admin Paneli**: Destek ekibi yönetim arayüzü
+- **Responsive Tasarım**: Mobil ve masaüstü uyumlu
+- **Yazıyor... Göstergesi**: Gerçek zamanlı yazma durumu
+- **Modern UI/UX**: Framer Motion animasyonları
+
+## 🏗️ Proje Yapısı
+
+```
+LCWProjects/
+├── ask-web/           # Ana kullanıcı arayüzü (Next.js + TypeScript)
+├── admin-panel/       # Destek ekibi yönetim paneli (Next.js)
+├── ChatSignalRHub/    # Backend API (ASP.NET Core + SignalR)
+└── help-desk/         # İlk prototip denemesi (kullanılmasına gerk yok)
+```
+
+## 🛠️ Kullanılan Teknolojiler
+
+### Frontend
+- **Next.js 15** - Modern React framework
+- **React 19** - UI kütüphanesi
+- **TypeScript** - Tip güvenliği
+- **Tailwind CSS** - Utility-first CSS framework
+- **Framer Motion** - Animasyon kütüphanesi
+- **Spline 3D** - İnteraktif 3D karakterler
+- **Radix UI** - Erişilebilir UI bileşenleri
+
+### Backend
+- **ASP.NET Core 8** - Web API framework
+- **SignalR** - Gerçek zamanlı iletişim
+- **CORS** - Cross-origin güvenlik
+
+## 📦 Kurulum
+
+### 1. Backend (ChatSignalRHub)
+```bash
+cd ChatSignalRHub
+dotnet restore
+dotnet run
+```
+Backend http://localhost:5180 adresinde çalışacak.
+
+### 2. Ana Uygulama (ask-web)
+```bash
+cd ask-web
+npm install
+npm run dev
+```
+Frontend http://localhost:3000 adresinde çalışacak.
+
+### 3. Admin Paneli (admin-panel)
+```bash
+cd admin-panel
+npm install
+npm run dev
+```
+Admin paneli http://localhost:3001 adresinde çalışacak.
+
+### 4. Destek Sitesi (help-desk)
+```bash
+cd help-desk
+npm install
+npm start
+```
+Destek sitesi http://localhost:3002 adresinde çalışacak.
+
+## 🎯 Nasıl Çalışır
+
+1. **Kullanıcı Girişi**: Kullanıcı ana sayfada adını giriyor
+2. **Oda Seçimi**: 4 farklı destek odasından birini seçiyor:
+   - Genel Destek 💬
+   - Teknik Yardım 🔧
+   - Ödeme Sorunları 💳
+   - Kargo Takip 📦
+3. **Bağlantı**: SignalR ile gerçek zamanlı bağlantı kuruluyor
+4. **Mesajlaşma**: Kullanıcı ve destek ekibi anlık mesajlaşabiliyor
+5. **Admin Yönetimi**: Destek ekibi admin panelinden yanıt verebiliyor
+
+## 🔧 Destek Odaları
+
+- **Genel Destek**: Genel sorular ve bilgi talepleri
+- **Teknik Yardım**: Teknik sorunlar ve hata bildirimleri
+- **Ödeme Sorunları**: Ödeme işlemleri ve fatura soruları
+- **Kargo Takip**: Sipariş takibi ve teslimat soruları
+
+## 📱 Özellikler Detayı
+
+- **Gerçek Zamanlı Bağlantı**: WebSocket tabanlı SignalR ile kesintisiz iletişim
+- **Oda Yönetimi**: Kullanıcılar farklı odalarda ayrı ayrı destek alabilir
+- **Typing Indicator**: "Yazıyor..." göstergesi ile kullanıcı deneyimi
+- **3D Karakter**: Spline ile oluşturulmuş interaktif Beemo robotu
+- **Responsive Tasarım**: Tüm cihazlarda mükemmel görünüm
+- **Modern Animasyonlar**: Framer Motion ile akıcı geçişler
+
+## 🚀 Deployment
+
+### Backend (Azure/Heroku)
+```bash
+cd ChatSignalRHub
+dotnet publish -c Release
+```
+
+### Frontend (Vercel/Netlify)
+```bash
+cd ask-web
+npm run build
+```
+
+## 🤝 Katkıda Bulunma
+
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/yeni-ozellik`)
+3. Değişikliklerinizi commit edin (`git commit -am 'Yeni özellik eklendi'`)
+4. Branch'inizi push edin (`git push origin feature/yeni-ozellik`)
+5. Pull Request oluşturun
+
+## 📄 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
+
+## 📞 İletişim
+
+Proje hakkında sorularınız için:
+- LinkedIn: https://www.linkedin.com/in/berke-kuzeyli
+
+---
+
+**Not**: Bu proje eğitim amaçlı geliştirilmiştir ve production kullanımı için ek güvenlik önlemleri alınması gerekebilir. 

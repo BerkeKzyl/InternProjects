@@ -162,6 +162,7 @@ export function useSignalR({ hubUrl, userName }: UseSignalRProps) {
     addLocalMessage,
     typingUsers,
     connectionRef,
+    setMessages,
     disconnect: () => {
       if (connectionRef.current) {
         connectionRef.current.stop();
